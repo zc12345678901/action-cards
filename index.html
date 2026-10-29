@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3b82f6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="行动卡">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>行动卡 · 把有用的，变成用得上</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --surface:#ffffff; --surface2:#eef1f5; --text:#1a1e25; --muted:#8b94a2;
+    --border:#e4e8ee; --brand:#3b82f6; --brand-soft:#eaf1fe;
+    --green:#169a68; --green-soft:#e5f6ee; --amber:#c98a06; --amber-soft:#fbf1dd; --red:#d64545;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0d1117; --surface:#161c25; --surface2:#1e2530; --text:#edf1f7; --muted:#8c97a6;
+      --border:#28303c; --brand:#6f9bff; --brand-soft:#1a2946; --green:#41d09a; --green-soft:#12332a;
+      --amber:#f0b44a; --amber-soft:#33271a; --red:#f07676;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI","Microsoft YaHei",sans-serif;
+       background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .app{max-width:480px;margin:0 auto;min-height:100vh;padding:16px 16px 96px}
+  button{font:inherit;cursor:pointer}
+  input,textarea{font:inherit;color:var(--text);background:var(--surface2);border:1px solid var(--border);
+       border-radius:12px;padding:11px 12px;width:100%;font-size:15px}
+  input:focus,textarea:focus{outline:none;border-color:var(--brand)}
+  textarea{resize:none;line-height:1.5}
+  input::placeholder,textarea::placeholder{color:var(--muted)}
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 0 16px}
+  .title{font-size:24px;font-weight:700;letter-spacing:.3px}
+  .sub{font-size:13px;color:var(--muted);margin-top:2px}
+  .round-btn{width:42px;height:42px;border-radius:50%;background:var(--brand);color:#fff;border:none;
+       font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;flex:none}
+  .sec-title{font-size:14px;font-weight:700;margin:18px 0 10px}
+  .btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);
+       border-radius:10px;padding:9px 14px;font-size:14px}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn.danger{color:var(--red);border-color:var(--red)}
+  .btn.ghost{background:transparent;color:var(--muted)}
+  .btn[disabled]{opacity:.5;cursor:default}
+  .primary-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:13px;
+       font-size:15px;font-weight:600;margin-top:6px}
+  .empty{color:var(--muted);padding:22px 14px;text-align:center;border:1px dashed var(--border);border-radius:12px;font-size:14px}
+  .week{background:var(--brand-soft);border-radius:16px;padding:14px;margin-bottom:16px}
+  .week-empty{background:transparent;border:1px dashed var(--border);color:var(--muted);font-size:14px}
+  .week-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--brand);font-weight:600;margin-bottom:8px}
+  .week-top span:last-child{opacity:.8}
+  .week-text{font-size:15px;font-weight:600;margin-bottom:10px}
+  .week-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+  .week-fill{height:100%;background:var(--brand);border-radius:3px}
+  .week-actions{display:flex;gap:8px;margin-top:12px}
+  .search-row{margin-bottom:10px}
+  .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{font:inherit;font-size:13px;padding:6px 13px;border-radius:20px;border:1px solid var(--border);
+       background:var(--surface);color:var(--muted)}
+  .chip-on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .list{display:flex;flex-direction:column;gap:10px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;cursor:pointer}
+  .card:active{background:var(--surface2)}
+  .card-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:7px}
+  .mini-chip{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--brand-soft);color:var(--brand)}
+  .focus-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--green-soft);color:var(--green)}
+  .card-what{font-size:15px;font-weight:600;margin-bottom:4px}
+  .card-when{font-size:12px;color:var(--muted)}
+  .form-head{display:flex;align-items:center;gap:12px;padding:8px 0 18px}
+  .back-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:transparent;
+       font-size:22px;line-height:1;color:var(--text);display:flex;align-items:center;justify-content:center}
+  .form-title{font-size:19px;font-weight:700}
+  .field{margin-bottom:15px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .hint{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+  .rv{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+  .rv-what{font-size:16px;font-weight:600;margin-bottom:4px}
+  .rv-when{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .rv-meta{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .rv-actions{display:flex;gap:9px}
+  .rv-actions .btn{flex:1}
+  .stat-row{display:flex;gap:10px}
+  .stat{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px}
+  .stat-v{font-size:20px;font-weight:700}
+  .stat-l{font-size:12px;color:var(--muted)}
+  .data-actions{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}
+  .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;
+       display:flex;align-items:center;justify-content:space-around;background:var(--surface);
+       border-top:1px solid var(--border);padding:8px 10px calc(10px + env(safe-area-inset-bottom));z-index:20}
+  .tab{font:inherit;font-size:13px;color:var(--muted);background:none;border:none;padding:8px 16px;border-radius:8px}
+  .tab.is-on{color:var(--brand);font-weight:600}
+  .tab-add{width:48px;height:48px;border-radius:50%;background:var(--brand);color:#fff;border:none;font-size:28px;
+       line-height:1;display:flex;align-items:center;justify-content:center;margin-top:-26px;
+       box-shadow:0 6px 16px rgba(0,0,0,.18);flex:none}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:30}
+  .overlay[hidden]{display:none}
+  .sheet{background:var(--surface);border-radius:18px 18px 0 0;width:100%;max-width:480px;padding:18px 16px
+       calc(16px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
+  .sheet-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:14px}
+  .sheet-actions{display:flex;gap:9px;margin-top:16px}
+  .sheet-actions .btn{flex:1}
+  .sheet-actions .btn.primary{flex:2}
+  .insight-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+  .insight-title{font-size:14px;font-weight:700;margin-bottom:8px}
+  .insight-line{font-size:14px;color:var(--text);margin-bottom:6px}
+  .insight-line.muted{color:var(--muted)}
+  .insight-group{font-size:13px;margin-bottom:8px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="title">行动卡</div>
+      <div class="sub">把有用的，变成用得上</div>
+    </div>
+    <button id="add-btn" class="round-btn" type="button" aria-label="记一条">+</button>
+  </header>
+
+  <section id="sec-home" class="sec">
+    <div id="week"></div>
+    <div class="search-row">
+      <input id="search" type="search" placeholder="搜索行动卡…">
+    </div>
+    <div id="tags" class="tag-row"></div>
+    <div id="list" class="list"></div>
+  </section>
+
+  <section id="sec-record" class="sec" hidden>
+    <div class="form-head">
+      <button id="rec-back" class="back-btn" type="button" aria-label="返回">‹</button>
+      <div class="form-title">新行动卡</div>
+    </div>
+    <div class="field">
+      <label for="f-what">这是什么（一句话）</label>
+      <textarea id="f-what" rows="2" placeholder="用自己的话说，别抄原文…"></textarea>
+    </div>
+    <div class="field">
+      <label for="f-when">什么时候用</label>
+      <input id="f-when" type="text" placeholder="当……的时候，我就想起它">
+    </div>
+    <div class="field">
+      <label for="f-how">怎么做</label>
+      <input id="f-how" type="text" placeholder="一个能马上做的动作">
+    </div>
+    <div class="field">
+      <label for="f-tags">标签（可选）</label>
+      <input id="f-tags" type="text" placeholder="决策 / 成长 / 学习…">
+    </div>
+    <button id="save-card" class="primary-btn" type="button">保存卡片</button>
+    <div class="hint">写清楚「什么时候用」，它才会在关键时刻冒出来</div>
+  </section>
+
+  <section id="sec-review" class="sec" hidden>
+    <div id="review-list"></div>
+    <div id="review-stats"></div>
+    <div class="data-actions">
+      <button id="export-btn" class="btn" type="button">导出备份</button>
+      <button id="import-btn" class="btn" type="button">导入</button>
+      <button id="clear-btn" class="btn danger" type="button">清空全部</button>
+    </div>
+    <input id="import-file" type="file" accept=".json,application/json" hidden>
+  </section>
+
+  <section id="sec-insight" class="sec" hidden>
+    <div id="insight"></div>
+  </section>
+
+  <nav class="tabbar">
+    <button id="nav-home" class="tab is-on" type="button">知识库</button>
+    <button id="nav-review" class="tab" type="button">回顾</button>
+    <button id="nav-insight" class="tab" type="button">洞察</button>
+  </nav>
+
+  <div id="edit" class="overlay" hidden>
+    <div class="sheet">
+      <div class="sheet-head">
+        <button id="edit-focus" class="btn ghost" type="button">设为本周练</button>
+        <button id="edit-delete" class="btn danger" type="button">删除</button>
+      </div>
+      <div class="field">
+        <label for="e-what">这是什么</label>
+        <textarea id="e-what" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label for="e-when">什么时候用</label>
+        <input id="e-when" type="text">
+      </div>
+      <div class="field">
+        <label for="e-how">怎么做</label>
+        <input id="e-how" type="text">
+      </div>
+      <div class="field">
+        <label for="e-tags">标签</label>
+        <input id="e-tags" type="text">
+      </div>
+      <div class="sheet-actions">
+        <button id="edit-cancel" class="btn" type="button">取消</button>
+        <button id="edit-save" class="btn primary" type="button">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'action-cards-v1';
+  function $(id) { return document.getElementById(id); }
+
+  function load() {
+    try {
+      var r = localStorage.getItem(KEY);
+      if (r) { var s = JSON.parse(r); if (s && Array.isArray(s.cards)) return s; }
+    } catch (e) {}
+    return null;
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function newId() { return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function toDateStr(d) {
+    var y = d.getFullYear();
+    var m = ('0' + (d.getMonth() + 1)).slice(-2);
+    var dd = ('0' + d.getDate()).slice(-2);
+    return y + '-' + m + '-' + dd;
+  }
+  function todayStr() { return toDateStr(new Date()); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function find(id) { for (var i = 0; i < state.cards.length; i++) if (state.cards[i].id === id) return state.cards[i]; return null; }
+  function allTags() {
+    var m = {};
+    state.cards.forEach(function (c) { (c.tags || []).forEach(function (t) { if (t) m[t] = 1; }); });
+    return Object.keys(m).sort();
+  }
+  function splitTags(s) {
+    return String(s || '').split(/[,，、/]/).map(function (x) { return x.trim(); }).filter(Boolean);
+  }
+
+  var state = load();
+  if (!state) {
+    state = { cards: [], meta: { weekFocus: null, reviewTotal: 0, streak: 0, lastReviewDate: null }, filterTag: '' };
+    seed();
+    save();
+  }
+  if (!state.meta) state.meta = { weekFocus: null, reviewTotal: 0, streak: 0, lastReviewDate: null };
+  if (!state.filterTag) state.filterTag = '';
+
+  function seed() {
+    var t = Date.now(), today = todayStr();
+    function ago(days) { return toDateStr(new Date(Date.now() - days * 86400000)); }
+    var a = { id: newId(), what: '先做最重要的 3 件，其余先放着', when: '忙得停不下来、事情堆成山时', how: '停下来问一句：哪 3 件做了，其余就不重要？先做这 3 件', tags: ['决策'], created: t - 86400000 * 2, updated: t - 86400000 * 2, nextReview: today, interval: 0, reviews: 0 };
+    var b = { id: newId(), what: '难的事先做，别往后拖', when: '想拖延、把难事推到后面时', how: '把最难的一件放到今天第一件事来做', tags: ['决策'], created: t - 86400000, updated: t - 86400000, nextReview: today, interval: 0, reviews: 0 };
+    var c = { id: newId(), what: '今天做的，要能给明天留点东西', when: '要开始一件新事时', how: '先问：这事做一次，能不能让我以后更省力？能，就值得长期做', tags: ['成长'], created: t - 86400000, updated: t - 86400000, nextReview: today, interval: 0, reviews: 0 };
+    var d = { id: newId(), what: '认知 = 知识 + 连接 + 调用', when: '学到新东西想收藏时', how: '别只收藏，用自己的话写一句，并想它跟哪条旧知识有关', tags: ['学习'], created: t - 86400000 * 20, updated: t - 86400000 * 20, nextReview: ago(20), interval: 0, reviews: 0 };
+    state.cards = [a, b, c, d];
+  }
+
+  function weekDayCount(wf) {
+    if (!wf || !wf.started) return 0;
+    var set = {};
+    (wf.practiced || []).forEach(function (d) { set[d] = 1; });
+    var start = new Date(wf.started + 'T00:00:00');
+    var end = new Date(start.getTime() + 6 * 86400000);
+    var n = 0;
+    for (var d = new Date(start); d <= end; d = new Date(d.getTime() + 86400000)) {
+      if (set[toDateStr(d)]) n++;
+    }
+    return n;
+  }
+
+  function renderWeek() {
+    var el = $('week');
+    var wf = state.meta.weekFocus;
+    if (!wf || !find(wf.cardId)) {
+      el.innerHTML = '<div class="week week-empty">还没有选「本周练这一条」。点一张卡片 →「设为本周练」。</div>';
+      return;
+    }
+    var c = find(wf.cardId);
+    var today = todayStr();
+    var end = toDateStr(new Date(new Date(wf.started + 'T00:00:00').getTime() + 6 * 86400000));
+    var expired = today > end;
+    var days = weekDayCount(wf);
+    var pct = Math.min(100, Math.round(days / 7 * 100));
+    var doneToday = (wf.practiced || []).indexOf(today) >= 0;
+    var btn;
+    if (expired) {
+      btn = '<button class="btn ghost" data-act="week-clear" type="button">本周结束，换一条</button>';
+    } else if (doneToday) {
+      btn = '<button class="btn ghost" type="button" disabled>今天已练 ✓</button>' +
+            '<button class="btn ghost" data-act="week-clear" type="button">换一条</button>';
+    } else {
+      btn = '<button class="btn ghost" data-act="week-done" type="button">今天练过了</button>' +
+            '<button class="btn ghost" data-act="week-clear" type="button">换一条</button>';
+    }
+    el.innerHTML = '<div class="week">' +
+      '<div class="week-top"><span>本周练这一条</span><span>' + days + ' / 7 天</span></div>' +
+      '<div class="week-text">' + esc(c.what) + '</div>' +
+      '<div class="week-track"><div class="week-fill" style="width:' + pct + '%"></div></div>' +
+      '<div class="week-actions">' + btn + '</div>' +
+      '</div>';
+  }
+
+  function renderTagChips() {
+    var tags = allTags();
+    var cur = state.filterTag || '';
+    var html = '<button class="chip' + (!cur ? ' chip-on' : '') + '" data-act="tag" data-tag="" type="button">全部</button>';
+    tags.forEach(function (t) {
+      html += '<button class="chip' + (cur === t ? ' chip-on' : '') + '" data-act="tag" data-tag="' + esc(t) + '" type="button">' + esc(t) + '</button>';
+    });
+    $('tags').innerHTML = html;
+  }
+
+  function renderCardList() {
+    var q = ($('search').value || '').trim().toLowerCase();
+    var tag = state.filterTag || '';
+    var list = state.cards.filter(function (c) {
+      if (tag && (c.tags || []).indexOf(tag) < 0) return false;
+      if (q) {
+        var hay = (c.what + ' ' + (c.when || '') + ' ' + (c.how || '')).toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    }).sort(function (a, b) { return b.updated - a.updated; });
+    var el = $('list');
+    if (!list.length) { el.innerHTML = '<div class="empty">还没有行动卡，点下面 + 记第一条吧。</div>'; return; }
+    el.innerHTML = list.map(function (c) {
+      var chips = (c.tags || []).map(function (t) { return '<span class="mini-chip">' + esc(t) + '</span>'; }).join('');
+      var isFocus = state.meta.weekFocus && state.meta.weekFocus.cardId === c.id;
+      return '<div class="card" data-id="' + c.id + '">' +
+        '<div class="card-top">' + chips + (isFocus ? '<span class="focus-badge">本周练</span>' : '') + '</div>' +
+        '<div class="card-what">' + esc(c.what) + '</div>' +
+        '<div class="card-when">' + esc(c.when || '') + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderReview() {
+    var today = todayStr();
+    var due = state.cards.filter(function (c) { return c.nextReview <= today; });
+    var html = '<div class="sec-title">今天该复习的</div>';
+    if (!due.length) {
+      html += '<div class="empty">今天没有到期的。去记一条，或把「本周练这一条」用起来。</div>';
+    } else {
+      html += due.map(function (c) {
+        return '<div class="rv">' +
+          '<div class="rv-what">' + esc(c.what) + '</div>' +
+          '<div class="rv-when">' + esc(c.when || '') + '</div>' +
+          '<div class="rv-meta">已复习 ' + c.reviews + ' 次</div>' +
+          '<div class="rv-actions">' +
+            '<button class="btn" data-act="grade" data-id="' + c.id + '" data-g="again" type="button">忘了</button>' +
+            '<button class="btn" data-act="grade" data-id="' + c.id + '" data-g="good" type="button">记住了</button>' +
+            '<button class="btn primary" data-act="grade" data-id="' + c.id + '" data-g="easy" type="button">很轻松</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+    $('review-list').innerHTML = html;
+
+    var practiced = weekDayCount(state.meta.weekFocus);
+    $('review-stats').innerHTML =
+      '<div class="sec-title">本周进度</div>' +
+      '<div class="stat-row">' +
+        '<div class="stat"><div class="stat-v">' + state.cards.length + '</div><div class="stat-l">卡片</div></div>' +
+        '<div class="stat"><div class="stat-v">' + practiced + '/7</div><div class="stat-l">本周练</div></div>' +
+        '<div class="stat"><div class="stat-v">' + (state.meta.reviewTotal || 0) + '</div><div class="stat-l">累计复习</div></div>' +
+      '</div>';
+  }
+
+  function renderInsight() {
+    var now = Date.now();
+    var since = now - 7 * 86400000;
+    var recent = state.cards.filter(function (c) { return c.created >= since; });
+    var tagCount = {};
+    recent.forEach(function (c) {
+      (c.tags || []).forEach(function (t) { if (t) tagCount[t] = (tagCount[t] || 0) + 1; });
+    });
+    var topTags = Object.keys(tagCount).sort(function (a, b) { return tagCount[b] - tagCount[a]; }).slice(0, 3);
+    var practiced = weekDayCount(state.meta.weekFocus);
+    var streak = state.meta.streak || 0;
+
+    var html = '<div class="insight-card">' +
+      '<div class="insight-title">本周复盘</div>' +
+      '<div class="insight-line">新增 ' + recent.length + ' 张卡 · 本周练了 ' + practiced + '/7 天 · 连续复习 ' + streak + ' 天</div>' +
+      (topTags.length
+        ? '<div class="insight-line muted">这周主要关注：' + topTags.map(esc).join('、') + '</div>'
+        : '<div class="insight-line muted">这周还没怎么记，去记第一条吧。</div>') +
+      '</div>';
+
+    var groups = {};
+    state.cards.forEach(function (c) {
+      (c.tags || []).forEach(function (t) {
+        if (t) (groups[t] = groups[t] || []).push(c);
+      });
+    });
+    var sharedTags = Object.keys(groups).filter(function (t) { return groups[t].length >= 2; })
+      .sort(function (a, b) { return groups[b].length - groups[a].length; }).slice(0, 3);
+    html += '<div class="insight-card"><div class="insight-title">可能相关（同标签）</div>';
+    if (!sharedTags.length) {
+      html += '<div class="insight-line muted">标签还比较散。给卡片加标签后，这里会推荐同主题的卡片。</div>';
+    } else {
+      sharedTags.forEach(function (t) {
+        var cards = groups[t];
+        var names = cards.slice(0, 3).map(function (c) { return '「' + esc(c.what) + '」'; }).join('、');
+        html += '<div class="insight-group">「' + esc(t) + '」下 ' + cards.length + ' 张：' + names + (cards.length > 3 ? ' 等' : '') + ' —— 可以互相参照、对比或合并</div>';
+      });
+    }
+    html += '</div>';
+
+    var today = todayStr();
+    var stale = state.cards.filter(function (c) {
+      return ((new Date(today + 'T00:00:00') - new Date(c.nextReview + 'T00:00:00')) / 86400000) >= 14;
+    }).sort(function (a, b) { return a.nextReview < b.nextReview ? -1 : 1; }).slice(0, 5);
+    html += '<div class="insight-card"><div class="insight-title">很久没复习</div>';
+    if (!stale.length) {
+      html += '<div class="insight-line muted">没有积压，节奏很好。</div>';
+    } else {
+      stale.forEach(function (c) {
+        var days = Math.round((new Date(today + 'T00:00:00') - new Date(c.nextReview + 'T00:00:00')) / 86400000);
+        html += '<div class="insight-line">「' + esc(c.what) + '」—— ' + days + ' 天没复习了，去复习或删掉</div>';
+      });
+    }
+    html += '</div>';
+
+    $('insight').innerHTML = html;
+  }
+
+  var editingId = null;
+  function openEdit(id) {
+    editingId = id;
+    var c = find(id);
+    if (!c) return;
+    $('e-what').value = c.what || '';
+    $('e-when').value = c.when || '';
+    $('e-how').value = c.how || '';
+    $('e-tags').value = (c.tags || []).join(', ');
+    $('edit').hidden = false;
+  }
+  function closeEdit() { editingId = null; $('edit').hidden = true; }
+  function saveEdit() {
+    if (!editingId) return;
+    var c = find(editingId);
+    if (!c) { closeEdit(); return; }
+    var what = $('e-what').value.trim();
+    if (!what) return;
+    c.what = what;
+    c.when = $('e-when').value.trim();
+    c.how = $('e-how').value.trim();
+    c.tags = splitTags($('e-tags').value);
+    c.updated = Date.now();
+    save(); renderAll(); closeEdit();
+  }
+  function deleteEdit() {
+    if (!editingId) return;
+    if (!confirm('删除这张卡片？')) return;
+    state.cards = state.cards.filter(function (c) { return c.id !== editingId; });
+    if (state.meta.weekFocus && state.meta.weekFocus.cardId === editingId) state.meta.weekFocus = null;
+    save(); renderAll(); closeEdit();
+  }
+  function setFocus() {
+    if (!editingId) return;
+    state.meta.weekFocus = { cardId: editingId, started: todayStr(), practiced: [] };
+    save(); renderAll(); closeEdit();
+  }
+
+  function saveCard() {
+    var what = $('f-what').value.trim();
+    if (!what) { $('f-what').focus(); return; }
+    state.cards.unshift({
+      id: newId(), what: what,
+      when: $('f-when').value.trim(), how: $('f-how').value.trim(),
+      tags: splitTags($('f-tags').value),
+      created: Date.now(), updated: Date.now(),
+      nextReview: todayStr(), interval: 0, reviews: 0
+    });
+    $('f-what').value = ''; $('f-when').value = ''; $('f-how').value = ''; $('f-tags').value = '';
+    save(); renderAll(); switchTab('home');
+  }
+
+  function grade(id, g) {
+    var c = find(id);
+    if (!c) return;
+    var i = c.interval || 0;
+    if (g === 'again') i = 0;
+    else if (g === 'good') i = (i === 0) ? 3 : Math.round(i * 2);
+    else i = (i === 0) ? 7 : Math.round(i * 2.5) + 2;
+    c.interval = i;
+    c.reviews = (c.reviews || 0) + 1;
+    var d = new Date(); d.setDate(d.getDate() + i);
+    c.nextReview = toDateStr(d);
+    var today = todayStr();
+    var yesterday = toDateStr(new Date(Date.now() - 86400000));
+    if (state.meta.lastReviewDate === today) {}
+    else if (state.meta.lastReviewDate === yesterday) { state.meta.streak = (state.meta.streak || 0) + 1; }
+    else { state.meta.streak = 1; }
+    state.meta.lastReviewDate = today;
+    state.meta.reviewTotal = (state.meta.reviewTotal || 0) + 1;
+    save(); renderAll();
+  }
+
+  function weekDone() {
+    var wf = state.meta.weekFocus;
+    if (!wf) return;
+    var today = todayStr();
+    wf.practiced = wf.practiced || [];
+    if (wf.practiced.indexOf(today) < 0) wf.practiced.push(today);
+    save(); renderAll();
+  }
+  function weekClear() {
+    state.meta.weekFocus = null;
+    save(); renderAll();
+  }
+
+  function switchTab(name) {
+    ['home', 'record', 'review', 'insight'].forEach(function (t) { $('sec-' + t).hidden = (t !== name); });
+    $('nav-home').classList.toggle('is-on', name === 'home');
+    $('nav-review').classList.toggle('is-on', name === 'review');
+    $('nav-insight').classList.toggle('is-on', name === 'insight');
+  }
+
+  function exportData() {
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '行动卡备份-' + todayStr() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 500);
+  }
+  function importData(e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var s = JSON.parse(r.result);
+        if (!s || !Array.isArray(s.cards)) throw new Error('bad');
+        state = s;
+        if (!state.meta) state.meta = { weekFocus: null, reviewTotal: 0, streak: 0, lastReviewDate: null };
+        if (!state.filterTag) state.filterTag = '';
+        save(); renderAll();
+      } catch (err) { alert('导入失败：文件格式不正确'); }
+    };
+    r.readAsText(f);
+    e.target.value = '';
+  }
+  function clearAll() {
+    if (!confirm('清空全部卡片？此操作不可撤销，建议先导出备份。')) return;
+    state = { cards: [], meta: { weekFocus: null, reviewTotal: 0, streak: 0, lastReviewDate: null }, filterTag: '' };
+    save(); renderAll();
+  }
+
+  function renderAll() {
+    renderWeek();
+    renderTagChips();
+    renderCardList();
+    renderReview();
+    renderInsight();
+  }
+
+  $('add-btn').addEventListener('click', function () { switchTab('record'); });
+  $('rec-back').addEventListener('click', function () { switchTab('home'); });
+  $('nav-home').addEventListener('click', function () { switchTab('home'); });
+  $('nav-insight').addEventListener('click', function () { switchTab('insight'); });
+  $('nav-review').addEventListener('click', function () { switchTab('review'); });
+  $('save-card').addEventListener('click', saveCard);
+  $('search').addEventListener('input', renderCardList);
+  $('list').addEventListener('click', function (e) { var c = e.target.closest('.card'); if (c) openEdit(c.dataset.id); });
+  $('tags').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act="tag"]');
+    if (b) { state.filterTag = b.dataset.tag; renderTagChips(); renderCardList(); }
+  });
+  $('week').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (!b) return;
+    if (b.dataset.act === 'week-done') weekDone();
+    else if (b.dataset.act === 'week-clear') weekClear();
+  });
+  $('review-list').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act="grade"]');
+    if (b) grade(b.dataset.id, b.dataset.g);
+  });
+  $('edit-save').addEventListener('click', saveEdit);
+  $('edit-cancel').addEventListener('click', closeEdit);
+  $('edit-delete').addEventListener('click', deleteEdit);
+  $('edit-focus').addEventListener('click', setFocus);
+  $('edit').addEventListener('click', function (e) { if (e.target === $('edit')) closeEdit(); });
+  $('export-btn').addEventListener('click', exportData);
+  $('import-btn').addEventListener('click', function () { $('import-file').click(); });
+  $('import-file').addEventListener('change', importData);
+  $('clear-btn').addEventListener('click', clearAll);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js').catch(function () {});
+    });
+  }
+
+  renderAll();
+  var initTab = (location.hash || '').replace('#', '');
+  switchTab(['home', 'review', 'insight'].indexOf(initTab) >= 0 ? initTab : 'home');
+})();
+</script>
+</body>
+</html>
